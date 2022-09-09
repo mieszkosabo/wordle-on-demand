@@ -1,10 +1,15 @@
 use std::net::TcpListener;
 
-use actix_web::{dev::Server, web, App, HttpServer};
+use actix_web::{
+    dev::Server,
+    web::{self, Data},
+    App, HttpServer,
+};
 use anyhow::Result;
+use sqlx::{postgres::PgPoolOptions, PgPool};
 
 use crate::{
-    configuration::Settings,
+    configuration::{DatabaseSettings, Settings},
     routes::{health_check::health_check, init_game::init_game},
 };
 
@@ -13,11 +18,13 @@ pub struct Application {
     server: Server,
 }
 
-async fn run(listener: TcpListener) -> Result<Server> {
+async fn run(listener: TcpListener, db_pool: PgPool) -> Result<Server> {
+    let db_pool = Data::new(db_pool);
     let server = HttpServer::new(move || {
         App::new()
             .route("/health_check", web::get().to(health_check))
             .route("/init_game", web::post().to(init_game))
+            .app_data(db_pool.clone())
     })
     .listen(listener)?
     .run();
@@ -27,11 +34,13 @@ async fn run(listener: TcpListener) -> Result<Server> {
 
 impl Application {
     pub async fn build(config: Settings) -> Result<Self> {
+        let connection_pool = get_connection_pool(&config.database);
+
         let address = format!("{}:{}", config.application.host, config.application.port);
         println!("{}", &address);
         let listener = TcpListener::bind(&address)?;
         let port = listener.local_addr().unwrap().port();
-        let server = run(listener).await?;
+        let server = run(listener, connection_pool).await?;
 
         Ok(Self { port, server })
     }
@@ -43,4 +52,10 @@ impl Application {
     pub async fn run_until_stopped(self) -> Result<(), std::io::Error> {
         self.server.await
     }
+}
+
+pub fn get_connection_pool(config: &DatabaseSettings) -> PgPool {
+    PgPoolOptions::new()
+        .acquire_timeout(std::time::Duration::from_secs(2))
+        .connect_lazy_with(config.with_db())
 }
