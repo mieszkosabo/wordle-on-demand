@@ -1,11 +1,11 @@
 use uuid::Uuid;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub struct GameId(String);
+pub struct GameId(uuid::Uuid);
 
 impl GameId {
     pub fn new() -> Self {
-        Self(Uuid::new_v4().as_hyphenated().to_string())
+        Self(Uuid::new_v4())
     }
 }
 
@@ -15,8 +15,8 @@ impl Default for GameId {
     }
 }
 
-impl AsRef<str> for GameId {
-    fn as_ref(&self) -> &str {
+impl AsRef<Uuid> for GameId {
+    fn as_ref(&self) -> &Uuid {
         &self.0
     }
 }
