@@ -1,13 +1,12 @@
 use std::net::TcpListener;
 
-use actix_web::{dev::Server, web, App, HttpResponse, HttpServer};
+use actix_web::{dev::Server, web, App, HttpServer};
 use anyhow::Result;
 
-use crate::configuration::Settings;
-
-pub async fn health_check() -> HttpResponse {
-    HttpResponse::Ok().finish()
-}
+use crate::{
+    configuration::Settings,
+    routes::{health_check::health_check, init_game::init_game},
+};
 
 pub struct Application {
     port: u16,
@@ -15,10 +14,13 @@ pub struct Application {
 }
 
 async fn run(listener: TcpListener) -> Result<Server> {
-    let server =
-        HttpServer::new(move || App::new().route("/health_check", web::get().to(health_check)))
-            .listen(listener)?
-            .run();
+    let server = HttpServer::new(move || {
+        App::new()
+            .route("/health_check", web::get().to(health_check))
+            .route("/init_game", web::post().to(init_game))
+    })
+    .listen(listener)?
+    .run();
 
     Ok(server)
 }
