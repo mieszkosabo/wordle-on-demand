@@ -6,7 +6,7 @@ fn main() {
         .expect("could not open game_words.txt")
         .lines()
         .filter(|w| w.graphemes(true).count() >= 3)
-        .filter(|w| !w.contains(" "))
+        .filter(|w| !w.contains(' '))
         .collect::<Vec<&str>>()
         .join("\n");
 
