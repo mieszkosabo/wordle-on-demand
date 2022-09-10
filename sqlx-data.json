@@ -1,0 +1,78 @@
+{
+  "db": "PostgreSQL",
+  "3e485d34f6cc80c2de09f1e9cd9640b9ed669d6b164f331e8bcb797be8c867f5": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Timestamptz",
+          "Int4",
+          "Text"
+        ]
+      }
+    },
+    "query": "\n        INSERT INTO games (game_id, created_at, word_len, word)\n        VALUES ($1, $2, $3, $4)\n        "
+  },
+  "598a5c8185060e6d580ec35027f8696727ec423b5e62d29b9acbe5929d36e4cc": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Timestamptz",
+          "Text"
+        ]
+      }
+    },
+    "query": "\n        INSERT INTO user_guesses (game_id, created_at, word)\n        VALUES ($1, $2, $3)\n        "
+  },
+  "8fc388fbbc4a96ef480b4ac875113c38e937efe2c6abd026a948ffdd6d231533": {
+    "describe": {
+      "columns": [
+        {
+          "name": "word",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "word_len",
+          "ordinal": 1,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\n        SELECT word, word_len FROM games\n        WHERE game_id = $1\n        "
+  },
+  "a354e5405c5e2c238b6b2fbc940e7dc6eb4c91dacbf138ee8d4e302d6b637acc": {
+    "describe": {
+      "columns": [
+        {
+          "name": "word",
+          "ordinal": 0,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\n        SELECT word FROM user_guesses\n        WHERE game_id = $1\n        ORDER BY created_at\n        "
+  }
+}

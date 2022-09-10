@@ -32,7 +32,8 @@ features = [
     "postgres",
     "uuid",
     "chrono",
-    "migrate" 
+    "migrate",
+    "offline"
 ]
 
 [target.x86_64-unknown-linux-gnu]

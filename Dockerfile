@@ -26,5 +26,6 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app/target/release/main main
 COPY configuration configuration
+COPY assets assets
 ENV APP_ENV production
 ENTRYPOINT ["./main"]
