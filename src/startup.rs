@@ -10,7 +10,10 @@ use sqlx::{postgres::PgPoolOptions, PgPool};
 
 use crate::{
     configuration::{DatabaseSettings, Settings},
-    routes::{health_check::health_check, init_game::init_game, make_guess::make_guess},
+    routes::{
+        game_state::game_state, health_check::health_check, init_game::init_game,
+        make_guess::make_guess,
+    },
 };
 
 pub struct Application {
@@ -25,6 +28,7 @@ async fn run(listener: TcpListener, db_pool: PgPool) -> Result<Server> {
             .route("/health_check", web::get().to(health_check))
             .route("/init_game", web::post().to(init_game))
             .route("/make_guess", web::post().to(make_guess))
+            .route("/game_state", web::post().to(game_state))
             .app_data(db_pool.clone())
     })
     .listen(listener)?

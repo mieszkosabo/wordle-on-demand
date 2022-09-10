@@ -55,9 +55,30 @@ impl TestApp {
             .expect("Failed to execute request.");
 
         if res.status().is_success() {
-            return Ok(res.json::<UserGameState>().await.unwrap());
+            Ok(res.json::<UserGameState>().await.unwrap())
         } else {
-            return Err(res.status().as_u16());
+            Err(res.status().as_u16())
+        }
+    }
+
+    pub async fn get_state(&self, game_id: Uuid) -> Result<UserGameState, u16> {
+        #[derive(serde::Serialize)]
+        struct Payload {
+            game_id: Uuid,
+        }
+        let client = reqwest::Client::new();
+
+        let res = client
+            .post(&format!("{}/game_state", &self.address))
+            .json(&Payload { game_id })
+            .send()
+            .await
+            .expect("Failed to execute request.");
+
+        if res.status().is_success() {
+            Ok(res.json::<UserGameState>().await.unwrap())
+        } else {
+            Err(res.status().as_u16())
         }
     }
 }
