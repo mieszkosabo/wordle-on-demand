@@ -1,7 +1,7 @@
 use rand::seq::IteratorRandom;
 use std::{collections::HashSet, fs};
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 
 fn get_words_set(len: usize, first_letter: char) -> Result<HashSet<String>, std::io::Error> {
     let mut acceptable_words = HashSet::new();
@@ -14,13 +14,13 @@ fn get_words_set(len: usize, first_letter: char) -> Result<HashSet<String>, std:
     Ok(acceptable_words)
 }
 
-pub fn check_if_valid_word(w: &String) -> Result<bool> {
+pub fn check_if_valid_word(w: &String) -> Result<()> {
     let len = w.len();
     let first_letter = w.chars().next().context("Could not get first letter.")?;
     let set = get_words_set(len, first_letter)?;
     match set.get(w) {
-        Some(_) => Ok(true),
-        None => Ok(false),
+        Some(_) => Ok(()),
+        None => Err(anyhow!("Word not in a list")),
     }
 }
 

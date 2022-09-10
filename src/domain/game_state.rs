@@ -1,18 +1,17 @@
 use anyhow::Result;
+use uuid::Uuid;
 
 use crate::words::get_random_word;
 use multiset::HashMultiSet;
 
-use super::GameId;
-
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
 pub struct UserGameState {
-    pub game_id: GameId,
+    pub game_id: Uuid,
     pub word_len: u8,
     pub inputs: Vec<Vec<CheckedLetter>>,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, serde::Deserialize, serde::Serialize)]
 pub enum CheckedLetter {
     CorrectPlace(char),
     Misplaced(char),
@@ -21,7 +20,7 @@ pub enum CheckedLetter {
 
 #[derive(Debug)]
 pub struct ServerGameState {
-    pub game_id: GameId,
+    pub game_id: Uuid,
     pub word_len: u8,
     pub word: String,
     pub user_choices: Vec<String>,
@@ -31,7 +30,7 @@ impl ServerGameState {
     pub fn new(word_len: u8) -> Result<Self> {
         let word = get_random_word(word_len)?;
         Ok(Self {
-            game_id: GameId::new(),
+            game_id: Uuid::new_v4(),
             word_len,
             user_choices: vec![],
             word,
@@ -87,7 +86,6 @@ fn input_to_checked_letters(w: &str, input: &str) -> Vec<CheckedLetter> {
 
 #[cfg(test)]
 mod tests {
-    use crate::domain::GameId;
 
     use super::{input_to_checked_letters, CheckedLetter, ServerGameState, UserGameState};
 
@@ -129,9 +127,9 @@ mod tests {
 
     #[test]
     fn test_from_server_gs_to_user_gs() {
-        let game_id = GameId::new();
+        let game_id = uuid::Uuid::new_v4();
         let sgs = ServerGameState {
-            game_id: game_id.clone(),
+            game_id,
             word_len: 5,
             word: "abcde".into(),
             user_choices: vec!["atena".into(), "mocne".into(), "katan".into()],

@@ -29,29 +29,8 @@ async fn returns_200_and_game_id_when_correct_data() {
 
 #[tokio::test]
 async fn init_games_persists_game() {
-    #[derive(serde::Serialize)]
-    struct Payload {
-        word_len: u8,
-    }
-    #[derive(serde::Deserialize)]
-    struct Response {
-        game_id: uuid::Uuid,
-    }
     let app = spawn_app().await;
-    let client = reqwest::Client::new();
-
-    let response = client
-        .post(&format!("{}/init_game", &app.address))
-        .json(&Payload { word_len: 4 })
-        .send()
-        .await
-        .expect("Failed to execute request.");
-
-    let returned_game_id = response
-        .json::<Response>()
-        .await
-        .expect("Failed to parse response")
-        .game_id;
+    let returned_game_id = app.init_game(4).await;
 
     let saved = sqlx::query!(
         r#"
